@@ -1,0 +1,29 @@
+# Arquivos locais e do Terraform
+.terraform/
+.terraform.lock.hcl
+
+# Planos e estados sensíveis
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+
+# Planos binários
+*.tfplan
+
+# Arquivos de override (úteis localmente)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Saídas temporárias ou de execução
+crash.log
+*.log
+*.backup
+
+# Outros arquivos comuns a IDEs e sistemas
+.DS_Store
+.idea/
+.vscode/
+*.swp
