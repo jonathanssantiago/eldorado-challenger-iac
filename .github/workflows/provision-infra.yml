@@ -32,10 +32,10 @@ jobs:
             echo "path=infra/s3-bucket-static" >> $GITHUB_OUTPUT
             echo "message=O bucket S3 foi criado com sucesso! 🎉" >> $GITHUB_OUTPUT
           elif [[ "$TITLE" == "up-ec2" ]]; then
-            echo "path=infra/ec2-instance" >> $GITHUB_OUTPUT
+            echo "path=infra/ec2" >> $GITHUB_OUTPUT
             echo "message=A instância EC2 foi provisionada com sucesso! 🚀" >> $GITHUB_OUTPUT
-          elif [[ "$TITLE" == "up-rds" ]]; then
-            echo "path=infra/rds-mysql" >> $GITHUB_OUTPUT
+          elif [[ "$TITLE" == "rds" ]]; then
+            echo "path=infra/rds" >> $GITHUB_OUTPUT
             echo "message=O banco de dados RDS MySQL foi criado com sucesso! 💾" >> $GITHUB_OUTPUT
           else
             echo "Nenhum recurso corresponde ao título da issue." >&2

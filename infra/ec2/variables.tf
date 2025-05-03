@@ -1,12 +1,34 @@
 variable "aws_region" {
-  default = "us-east-1"
-}
-variable "ami_id" {
-  default = "ami-0f9de6e2d2f067fca"
-}
-variable "instance_type" {
-  default = "t2.micro"
+  description = "Região AWS onde os recursos serão criados"
+  type        = string
 }
 
-variable "vpc_id" {}
-variable "public_subnet" {}
+variable "environment" {
+  description = "Ambiente (dev, staging, prod)"
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "ID da VPC"
+  type        = string
+}
+
+variable "public_subnet" {
+  description = "ID da subnet pública"
+  type        = string
+}
+
+variable "ami_id" {
+  description = "ID da AMI para instância EC2"
+  type        = string
+}
+
+variable "instance_type" {
+  description = "Tipo da instância EC2"
+  type        = string
+}
+
+variable "public_key_path" {
+  description = "Caminho para arquivo de chave pública SSH"
+  type        = string
+}
