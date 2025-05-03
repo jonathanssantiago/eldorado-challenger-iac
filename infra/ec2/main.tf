@@ -16,14 +16,6 @@ resource "aws_security_group" "eldorado_backend_sg" {
     description = "HTTP from anywhere"
   }
 
-  # HTTPS access
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTPS from anywhere"
-  }
 
   # SSH access
   ingress {
@@ -32,6 +24,22 @@ resource "aws_security_group" "eldorado_backend_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "SSH from anywhere"
+  }
+
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Application port"
+  }
+
+  ingress {
+    description = "Allow ping"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # Outbound internet access
