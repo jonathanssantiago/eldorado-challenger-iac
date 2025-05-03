@@ -5,7 +5,7 @@ provider "aws" {
 resource "aws_security_group" "backend_sg" {
   name        = "backend-sg"
   description = "Allow HTTP and SSH"
-  #   vpc_id      = var.vpc_id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port   = 80
@@ -37,12 +37,12 @@ resource "aws_key_pair" "keypair" {
 resource "aws_instance" "backend_instance" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
+  subnet_id              = var.public_subnet
   vpc_security_group_ids = [aws_security_group.backend_sg.id]
   key_name               = aws_key_pair.keypair.key_name
-  user_data              = file("user_data.sh")
+  user_data              = file("./ec2/user_data.sh")
 
   tags = {
     Name = "eldorado-challenge-backend-instance"
   }
 }
-
