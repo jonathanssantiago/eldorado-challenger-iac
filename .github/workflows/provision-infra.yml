@@ -1,0 +1,58 @@
+name: Provision Infrastructure Resource
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  deploy:
+    if: startsWith(github.event.issue.title, 'up-')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Determine which resource to deploy
+        id: resource
+        run: |
+          TITLE="${{ github.event.issue.title }}"
+
+          if [[ "$TITLE" == "up-bucket-s3" ]]; then
+            echo "path=infra/s3-bucket-static" >> $GITHUB_OUTPUT
+            echo "message=O bucket S3 foi criado com sucesso! 🎉" >> $GITHUB_OUTPUT
+          elif [[ "$TITLE" == "up-ec2" ]]; then
+            echo "path=infra/ec2-instance" >> $GITHUB_OUTPUT
+            echo "message=A instância EC2 foi provisionada com sucesso! 🚀" >> $GITHUB_OUTPUT
+          elif [[ "$TITLE" == "up-rds" ]]; then
+            echo "path=infra/rds-mysql" >> $GITHUB_OUTPUT
+            echo "message=O banco de dados RDS MySQL foi criado com sucesso! 💾" >> $GITHUB_OUTPUT
+          else
+            echo "Nenhum recurso corresponde ao título da issue." >&2
+            exit 1
+          fi
+
+      - name: Run Terraform
+        run: |
+          cd ${{ steps.resource.outputs.path }}
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Add comment to issue
+        run: |
+          gh issue comment "$NUMBER" --repo "$REPO" --body "$BODY"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          BODY: ${{ steps.resource.outputs.message }}
