@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script simplificado para configurar Docker e executar aplicação Eldorado Challenge API
+# Script para configurar Docker, NGINX e executar aplicação Eldorado Challenge API com HTTPS usando um certificado autoassinado
 set -e
 
 # Função para log
@@ -21,7 +21,10 @@ apt-get install -y \
   ca-certificates \
   curl \
   gnupg-agent \
-  software-properties-common
+  software-properties-common \
+  nginx \
+  openssl \
+  docker.io
 
 # Instala o Docker
 log "Instalando o Docker..."
@@ -55,7 +58,7 @@ log "Iniciando o contêiner Docker..."
 docker run -d \
   --name eldorado-api \
   --restart always \
-  -p 80:3000 \
+  -p 8080:3000 \
   jonathanssantiagodev/eldorado-challenge-api:latest
 
 # Verifica se o contêiner está rodando
@@ -79,7 +82,53 @@ for i in {1..5}; do
   fi
 done
 
-log "Configuração concluída com sucesso!"
+# Instalar e configurar o NGINX
+log "Instalando e configurando o NGINX..."
+# Ativar o servidor NGINX
+systemctl start nginx
+systemctl enable nginx
+
+# Gerar o certificado SSL autoassinado
+log "Gerando certificado SSL autoassinado..."
+mkdir -p /etc/nginx/ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/nginx/ssl/privkey.pem \
+  -out /etc/nginx/ssl/fullchain.pem \
+  -subj "/C=BR/ST=State/L=City/O=Company/OU=IT/CN=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)"
+
+# Configuração do NGINX
+log "Configurando o NGINX para proxy reverso com HTTPS..."
+cat <<EOF > /etc/nginx/sites-available/default
+server {
+    listen 80;
+    server_name $(curl -s http://169.254.169.254/latest/meta-data/public-ipv4);  # IP público da EC2
+
+    # Redireciona para HTTPS
+    return 301 https://\$host\$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name $(curl -s http://169.254.169.254/latest/meta-data/public-ipv4);  # IP público da EC2
+
+    ssl_certificate /etc/nginx/ssl/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:80;  # Proxy reverso para o contêiner rodando na porta 80
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF
+
+# Recarregar o NGINX
+log "Recarregando a configuração do NGINX..."
+systemctl reload nginx
+
+log "Configuração HTTPS concluída com sucesso!"
 
 # Criar arquivo de conclusão
 echo "$(date): Inicialização concluída com sucesso!" > /var/log/user-data-complete.log
