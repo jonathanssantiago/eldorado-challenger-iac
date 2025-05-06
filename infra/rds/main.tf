@@ -73,8 +73,8 @@ resource "aws_db_instance" "eldorado_db" {
   parameter_group_name   = aws_db_parameter_group.eldorado_db_param_group.name
   db_subnet_group_name   = aws_db_subnet_group.eldorado_db_subnet_group.name
   vpc_security_group_ids = [aws_security_group.eldorado_db_sg.id]
-  multi_az               = true
-  publicly_accessible    = true
+  multi_az               = false
+  publicly_accessible    = false
 
   tags = {
     Name        = "eldorado-db"

@@ -57,3 +57,12 @@ module "rds" {
   db_password       = var.db_password
   db_instance_class = var.db_instance_class
 }
+
+module "s3" {
+  source = "./s3-bucket-static"
+
+  aws_region  = var.aws_region
+  environment = var.environment
+  bucket_name = var.bucket_name
+  domain_name = var.domain_name
+}

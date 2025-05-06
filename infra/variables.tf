@@ -79,3 +79,17 @@ variable "db_instance_class" {
   type        = string
   default     = "db.t3.micro"
 }
+
+# S3 Variables
+variable "bucket_name" {
+  type        = string
+  description = "Nome do bucket S3"
+  default     = "device-management-frontend-bucket"
+}
+
+variable "domain_name" {
+  description = "Domínio"
+  type        = string
+  default     = ""
+}
+

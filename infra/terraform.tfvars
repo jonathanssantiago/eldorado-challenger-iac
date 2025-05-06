@@ -18,3 +18,7 @@ db_name           = "eldorado_challenge"
 db_username       = "eldorado_user"
 db_password       = "eldorado_password"
 db_instance_class = "db.t3.micro"
+
+#S3
+bucket_name = "device-management-frontend-bucket"
+domain_name = ""
